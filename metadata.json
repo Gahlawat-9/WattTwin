@@ -1,0 +1,6 @@
+{
+  "name": "WattTwin — Production-Aware Energy Intelligence",
+  "description": "Production-aware industrial energy intelligence platform for manufacturing SMEs that connects production records with electricity and machine data to establish expected energy baselines, detect anomalies, and verify savings.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
