@@ -601,7 +601,8 @@ export const EnergyVsProductionChart: React.FC<
         </svg>
 
         {/* Tooltip */}
-        <div className="absolute top-2 right-2 rounded-lg border border-slate-700 bg-slate-900/95 px-3 py-2 shadow-lg">
+         {/*<div className="absolute top-2 right-2 z-20 rounded-lg border border-slate-700 bg-slate-900/95 px-3 py-2 shadow-lg">*/}
+         <div className="absolute top-2 right-2 z-20 w-72 rounded-lg border border-slate-700 bg-slate-900/95 px-3 py-2 text-xs shadow-lg">
           <div className="flex items-center justify-between gap-3 font-mono font-semibold text-[11px] text-slate-300 mb-1">
             <span>
               {activePoint.time}
@@ -638,6 +639,49 @@ export const EnergyVsProductionChart: React.FC<
                 kWh
               </span>
             </div>
+                <div className="flex items-center justify-between gap-4">
+  <span className="text-slate-300">
+    Variance:
+  </span>
+
+  <span
+    className={`font-semibold ${
+      activePoint.energyKwh > activePoint.expectedEnergyKwh
+        ? 'text-amber-400'
+        : 'text-emerald-400'
+    }`}
+  >
+    {(
+      activePoint.energyKwh -
+      activePoint.expectedEnergyKwh
+    ).toFixed(1)}{' '}
+    kWh
+  </span>
+</div>
+
+<div className="flex items-center justify-between gap-4">
+  <span className="text-slate-300">
+    Deviation:
+  </span>
+
+  <span
+    className={`font-semibold ${
+      activePoint.energyKwh > activePoint.expectedEnergyKwh
+        ? 'text-amber-400'
+        : 'text-emerald-400'
+    }`}
+  >
+    {activePoint.expectedEnergyKwh > 0
+      ? (
+          ((activePoint.energyKwh -
+            activePoint.expectedEnergyKwh) /
+            activePoint.expectedEnergyKwh) *
+          100
+        ).toFixed(1)
+      : '0.0'}
+    %
+  </span>
+</div>
 
             <div className="flex items-center justify-between gap-4">
               <span className="text-slate-300">
