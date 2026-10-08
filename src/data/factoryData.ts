@@ -3,6 +3,7 @@ export type FactoryId = 'factory-01' | 'plant-a';
 export type NavSectionId =
   | 'overview'
   | 'evidence-action'
+  | 'digital-map'
   | 'machines'
   | 'energy-flow'
   | 'energy-twin'

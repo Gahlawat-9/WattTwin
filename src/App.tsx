@@ -29,6 +29,7 @@ import {
   Info,
   Layers,
   Lightbulb,
+  Map as MapIcon,
   Moon,
   Settings,
   ShieldCheck,
@@ -251,12 +252,6 @@ const factory = {
               <nav className="space-y-1">
                 {([
                   { id: 'overview', label: 'Overview', icon: Home },
-                  {
-                    id: 'evidence-action',
-                    label: 'Evidence & Investigation',
-                    icon: ClipboardCheck,
-                    badge: factory.kpis.opportunitiesCount,
-                  },
                 ] as const).map((item) => {
                   const Icon = item.icon;
                   const active = activeNav === item.id;
@@ -279,11 +274,6 @@ const factory = {
                         <Icon className="w-4 h-4 shrink-0" />
                         <span>{item.label}</span>
                       </span>
-                      {'badge' in item && item.badge ? (
-                        <span className="font-mono text-[11px] text-amber-400 font-semibold">
-                          {item.badge}
-                        </span>
-                      ) : null}
                     </button>
                   );
                 })}
@@ -297,6 +287,7 @@ const factory = {
               </div>
               <nav className="space-y-1">
                 {([
+                  { id: 'digital-map', label: 'Digital Factory Map', icon: MapIcon },
                   { id: 'production', label: 'Shifts & Batch Records', icon: FileSpreadsheet },
                   { id: 'machines', label: 'Equipment & SEC', icon: Cpu },
                   { id: 'energy-flow', label: 'Energy Flow (Sankey)', icon: GitFork },
@@ -769,21 +760,6 @@ const factory = {
                     </div>
 
                     {/* Box 2: Primary CTA to Open Evidence-to-Action Workflow */}
-                    <div className="flex flex-col justify-center">
-                      <button
-                        type="button"
-                        onClick={() => openEvidenceViewFor(featuredOpp)}
-                        className="w-full h-full min-h-[96px] px-4 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs sm:text-sm flex flex-col items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-sm text-center"
-                      >
-                        <span className="flex items-center gap-1.5 font-bold">
-                          <span>Investigate opportunity</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </span>
-                        <span className="text-[11px] font-normal text-slate-900 leading-snug">
-                          Inspect machine evidence & rule out alternative explanations
-                        </span>
-                      </button>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -909,6 +885,16 @@ const factory = {
           {/* ----------------------------------------------------------------- */}
           {/* DEDICATED SECONDARY SCREENS                                       */}
           {/* ----------------------------------------------------------------- */}
+          {activeNav === 'digital-map' && (
+            <FactoryFloorMap
+              equipmentList={factory.equipmentList}
+              opportunities={factory.opportunities}
+              factoryName={factory.name}
+              theme={theme}
+              onSelectOpportunity={(opp) => openEvidenceViewFor(opp)}
+            />
+          )}
+
           {activeNav === 'machines' && (
             <MachinesView
               factory={factory}
