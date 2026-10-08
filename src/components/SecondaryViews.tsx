@@ -920,107 +920,45 @@ export const ProductionDataView: React.FC<{
 /* -------------------------------------------------------------------------- */
 /* 5. REPORTS & VERIFIED SAVINGS VIEW                                         */
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-/* 5. REPORTS & VERIFIED SAVINGS VIEW                                         */
-/* -------------------------------------------------------------------------- */
-
 export const ReportsView: React.FC<{
   factory: FactoryProfile;
   theme: ThemeMode;
-
-  postActionVerifications: {
-    machine: string;
-    beforeNonProductiveEnergy: number;
-    afterNonProductiveEnergy: number;
-    reductionKwh: number;
-    reductionPercent: number;
-    estimatedSavingsINR: number;
-    monthlySavingsINR: number;
-    annualSavingsINR: number;
-    status: "Improved" | "No Significant Change" | "Worsened";
-    explanation: string;
-  }[];
-}> = ({ factory, theme, postActionVerifications }) => {
+}> = ({ factory, theme }) => {
   const [exportedMsg, setExportedMsg] = useState<string | null>(null);
-
-  const isDark = theme === "dark";
-
+  const isDark = theme === 'dark';
   const cardClass = isDark
-    ? "bg-[#0b1522]/90 border-slate-800/80 text-slate-100"
-    : "bg-white border-slate-200 text-slate-900 shadow-xs";
-
-  const totalAnnualSavingsINR = postActionVerifications.reduce(
-    (sum, verification) =>
-      sum + Math.max(0, verification.annualSavingsINR),
-    0
-  );
-
-  const totalMonthlySavingsINR = postActionVerifications.reduce(
-    (sum, verification) =>
-      sum + Math.max(0, verification.monthlySavingsINR),
-    0
-  );
-
-  const totalReductionKwh = postActionVerifications.reduce(
-    (sum, verification) =>
-      sum + Math.max(0, verification.reductionKwh),
-    0
-  );
-
-  const improvedMachines = postActionVerifications.filter(
-    (verification) => verification.status === "Improved"
-  ).length;
+    ? 'bg-[#0b1522]/90 border-slate-800/80 text-slate-100'
+    : 'bg-white border-slate-200 text-slate-900 shadow-xs';
 
   const handleExportCSV = () => {
-    const headers = [
-      "Date,Shift,SKU,Process,Machine,Units,Expected_kWh,Actual_kWh,SEC_Actual,Deviation_Pct",
-    ];
-
+    const headers = ['Date,Shift,SKU,Process,Machine,Units,Expected_kWh,Actual_kWh,SEC_Actual,Deviation_Pct'];
     const rows = factory.productionBatches.map(
       (b) =>
         `${b.date},"${b.shift}","${b.productSku}",${b.process},"${b.machineId}",${b.unitsProduced},${b.expectedKwh},${b.actualKwh},${b.secActual},${b.deviationPercent}%`
     );
-
-    const csv = [...headers, ...rows].join("\n");
-
-    const blob = new Blob([csv], {
-      type: "text/csv;charset=utf-8;",
-    });
-
+    const csv = [...headers, ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-
+    const a = document.createElement('a');
     a.href = url;
     a.download = `WattTwin_${factory.id}_Energy_Intelligence_Report.csv`;
-
     a.click();
-
     URL.revokeObjectURL(url);
-
-    setExportedMsg(
-      "Downloaded CSV Audit Report with baseline-adjusted SEC verification."
-    );
+    setExportedMsg('Downloaded CSV Audit Report with baseline-adjusted SEC verification.');
   };
 
   return (
     <div className="space-y-5">
-
-      {/* Header */}
       <div className={`rounded-xl border p-4 ${cardClass}`}>
         <div className="flex flex-wrap items-center justify-between gap-4">
-
           <div>
             <h2 className="text-lg font-semibold tracking-tight">
               Verified Savings & ISO 50001 Energy Performance Reports
             </h2>
-
             <p className="text-xs text-slate-400 mt-0.5">
-              Closed-loop verification: Factory Data → Baseline Analysis →
-              Anomaly Detection → Actionable Insights → Verified Savings
+              Closed-loop verification: Factory Data → Baseline Analysis → Anomaly Detection → Actionable Insights → Verified Savings
             </p>
           </div>
-
           <button
             type="button"
             onClick={handleExportCSV}
@@ -1029,339 +967,41 @@ export const ReportsView: React.FC<{
             <Download className="w-4 h-4" />
             <span>Export Verified Audit CSV</span>
           </button>
-
         </div>
-
         {exportedMsg && (
-          <div className="mt-3 text-xs text-emerald-400 font-medium">
-            {exportedMsg}
-          </div>
+          <div className="mt-3 text-xs text-emerald-400 font-medium">{exportedMsg}</div>
         )}
       </div>
 
-      {/* Factory-Level Savings Summary */}
-      <div className={`rounded-xl border p-5 ${cardClass}`}>
-
-        <div className="flex flex-wrap items-start justify-between gap-5">
-
-          <div>
-            <div className="text-xs text-slate-400 uppercase tracking-wider font-mono">
-              Demonstrated Energy Impact
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {factory.recommendations.map((rec) => (
+          <div key={rec.id} className={`rounded-xl border p-4 flex flex-col justify-between ${cardClass}`}>
+            <div>
+              <div className="flex items-center justify-between text-xs mb-2">
+                <span className="text-emerald-400 font-medium">{rec.process}</span>
+                <span className="font-mono text-slate-400">Status: {rec.status}</span>
+              </div>
+              <h3 className="text-sm font-semibold mb-1.5">{rec.title}</h3>
+              <p className="text-xs text-slate-400 mb-4 leading-relaxed">{rec.description}</p>
             </div>
 
-            <h3 className="text-lg font-semibold mt-1">
-              Potential Annual Energy Cost Saving
-            </h3>
-
-            <p className="text-xs text-slate-400 mt-1 max-w-xl">
-              Annualised impact based on the demonstrated reduction
-              in non-productive energy across identified machines.
-            </p>
-          </div>
-
-          <div className="text-right">
-
-            <div className="text-xs text-slate-500">
-              Annualised scenario impact
-            </div>
-
-            <div className="text-3xl sm:text-4xl font-bold font-mono tabular-nums text-emerald-400 mt-1">
-              ₹
-              {totalAnnualSavingsINR.toLocaleString("en-IN", {
-                maximumFractionDigits: 0,
-              })}
-
-              <span className="text-sm text-slate-400 font-normal">
-                /year
-              </span>
-            </div>
-
-          </div>
-
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
-
-          {/* Total Energy Reduction */}
-          <div
-            className={`rounded-lg border p-3 ${
-              isDark
-                ? "bg-[#070e17] border-slate-800"
-                : "bg-slate-50 border-slate-200"
-            }`}
-          >
-            <div className="text-xs text-slate-500">
-              Non-Productive Energy Reduction
-            </div>
-
-            <div className="text-lg font-mono font-semibold text-emerald-400 mt-1">
-              {totalReductionKwh.toFixed(1)} kWh
-            </div>
-
-            <div className="text-[11px] text-slate-500 mt-1">
-              Demonstrated scenario reduction
+            <div className="pt-3 border-t border-slate-800/60 space-y-1.5 text-xs font-mono">
+              <div className="flex justify-between">
+                <span className="text-slate-400">Baseline SEC:</span>
+                <span>{rec.beforeSec} kWh/unit</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Post-Action SEC:</span>
+                <span className="text-emerald-400 font-semibold">{rec.afterSec} kWh/unit</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Monthly Saving:</span>
+                <span className="text-emerald-400 font-semibold">₹{rec.savingINRMonth.toLocaleString()}/mo</span>
+              </div>
             </div>
           </div>
-
-          {/* Monthly Cost Impact */}
-          <div
-            className={`rounded-lg border p-3 ${
-              isDark
-                ? "bg-[#070e17] border-slate-800"
-                : "bg-slate-50 border-slate-200"
-            }`}
-          >
-            <div className="text-xs text-slate-500">
-              Monthly Cost Impact
-            </div>
-
-            <div className="text-lg font-mono font-semibold text-emerald-400 mt-1">
-              ₹
-              {totalMonthlySavingsINR.toLocaleString("en-IN", {
-                maximumFractionDigits: 0,
-              })}
-            </div>
-
-            <div className="text-[11px] text-slate-500 mt-1">
-              26 operating days/month
-            </div>
-          </div>
-
-          {/* Machines Improved */}
-          <div
-            className={`rounded-lg border p-3 ${
-              isDark
-                ? "bg-[#070e17] border-slate-800"
-                : "bg-slate-50 border-slate-200"
-            }`}
-          >
-            <div className="text-xs text-slate-500">
-              Machines Improved
-            </div>
-
-            <div className="text-lg font-mono font-semibold text-emerald-400 mt-1">
-              {improvedMachines}/{postActionVerifications.length}
-            </div>
-
-            <div className="text-[11px] text-slate-500 mt-1">
-              Post-action scenario
-            </div>
-          </div>
-
-        </div>
-
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
-
-          <span>
-            Electricity rate: ₹8.12/kWh
-          </span>
-
-          <span>
-            Annualisation: 26 operating days/month × 12 months
-          </span>
-
-        </div>
-
-      </div>
-
-      {/* Machine-Level Post-Action Verification */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-        {postActionVerifications.map((verification) => (
-
-          <div
-            key={verification.machine}
-            className={`rounded-xl border p-4 ${cardClass}`}
-          >
-
-            {/* Machine Header */}
-            <div className="flex items-start justify-between gap-3">
-
-              <div>
-
-                <div className="text-xs text-slate-400 uppercase tracking-wider font-mono">
-                  Post-Action Verification
-                </div>
-
-                <h3 className="text-sm font-semibold mt-1">
-                  {verification.machine}
-                </h3>
-
-              </div>
-
-              <span
-                className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${
-                  verification.status === "Improved"
-                    ? "text-emerald-400 border-emerald-400/30 bg-emerald-400/10"
-                    : verification.status === "Worsened"
-                      ? "text-rose-400 border-rose-400/30 bg-rose-400/10"
-                      : "text-amber-400 border-amber-400/30 bg-amber-400/10"
-                }`}
-              >
-                {verification.status}
-              </span>
-
-            </div>
-
-            {/* Energy Comparison */}
-            <div className="grid grid-cols-2 gap-3 mt-4">
-
-              {/* Before */}
-              <div>
-                <div className="text-xs text-slate-500">
-                  Before
-                </div>
-
-                <div className="font-mono font-semibold mt-1">
-                  {verification.beforeNonProductiveEnergy.toFixed(1)} kWh
-                </div>
-              </div>
-
-              {/* After */}
-              <div>
-                <div className="text-xs text-slate-500">
-                  After
-                </div>
-
-                <div className="font-mono font-semibold mt-1">
-                  {verification.afterNonProductiveEnergy.toFixed(1)} kWh
-                </div>
-              </div>
-
-              {/* Change */}
-              <div>
-                <div className="text-xs text-slate-500">
-                  Change
-                </div>
-
-                <div
-                  className={`font-mono font-semibold mt-1 ${
-                    verification.reductionKwh > 0
-                      ? "text-emerald-400"
-                      : verification.reductionKwh < 0
-                        ? "text-rose-400"
-                        : "text-slate-400"
-                  }`}
-                >
-                  {verification.reductionKwh > 0 ? "-" : ""}
-                  {Math.abs(
-                    verification.reductionKwh
-                  ).toFixed(1)}{" "}
-                  kWh
-                </div>
-              </div>
-
-              {/* Change Percentage */}
-              <div>
-                <div className="text-xs text-slate-500">
-                  Change %
-                </div>
-
-                <div
-                  className={`font-mono font-semibold mt-1 ${
-                    verification.reductionPercent > 0
-                      ? "text-emerald-400"
-                      : verification.reductionPercent < 0
-                        ? "text-rose-400"
-                        : "text-slate-400"
-                  }`}
-                >
-                  {verification.reductionPercent > 0 ? "-" : ""}
-                  {Math.abs(
-                    verification.reductionPercent
-                  ).toFixed(1)}%
-                </div>
-              </div>
-
-            </div>
-
-            {/* Financial Impact */}
-            <div className="mt-4 pt-3 border-t border-slate-800/60">
-
-              <div className="text-xs text-slate-500 mb-3">
-                Estimated Energy Cost Saving
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-
-                {/* Daily */}
-                <div>
-                  <div className="text-[11px] text-slate-500">
-                    Daily
-                  </div>
-
-                  <div className="text-base font-mono font-bold text-emerald-400 mt-1">
-                    ₹
-                    {verification.estimatedSavingsINR.toLocaleString(
-                      "en-IN",
-                      {
-                        maximumFractionDigits: 0,
-                      }
-                    )}
-                  </div>
-                </div>
-
-                {/* Monthly */}
-                <div>
-                  <div className="text-[11px] text-slate-500">
-                    Monthly
-                  </div>
-
-                  <div className="text-base font-mono font-bold text-emerald-400 mt-1">
-                    ₹
-                    {verification.monthlySavingsINR.toLocaleString(
-                      "en-IN",
-                      {
-                        maximumFractionDigits: 0,
-                      }
-                    )}
-                  </div>
-                </div>
-
-                {/* Annual */}
-                <div className="text-right">
-                  <div className="text-[11px] text-slate-500">
-                    Annualised
-                  </div>
-
-                  <div className="text-base font-mono font-bold text-emerald-400 mt-1">
-                    ₹
-                    {verification.annualSavingsINR.toLocaleString(
-                      "en-IN",
-                      {
-                        maximumFractionDigits: 0,
-                      }
-                    )}
-                  </div>
-                </div>
-
-              </div>
-
-              <div className="text-[10px] text-slate-500 mt-2">
-                Based on ₹8.12/kWh · 26 operating days/month
-              </div>
-
-            </div>
-
-            {/* Verification Finding */}
-            <div className="mt-4 pt-3 border-t border-slate-800/60">
-
-              <div className="text-xs text-slate-500 mb-1">
-                Verification finding
-              </div>
-
-              <p className="text-xs text-slate-400 leading-relaxed">
-                {verification.explanation}
-              </p>
-
-            </div>
-
-          </div>
-
         ))}
-
       </div>
-
     </div>
   );
 };
