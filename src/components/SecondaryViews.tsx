@@ -927,7 +927,7 @@ export const ProductionDataView: React.FC<{
 export const ReportsView: React.FC<{
   factory: FactoryProfile;
   theme: ThemeMode;
-
+    curtailmentSavings: Record<string, number>;
   postActionVerifications: {
     machine: string;
     beforeNonProductiveEnergy: number;
@@ -940,7 +940,7 @@ export const ReportsView: React.FC<{
     status: "Improved" | "No Significant Change" | "Worsened";
     explanation: string;
   }[];
-}> = ({ factory, theme, postActionVerifications }) => {
+}> = ({ factory, theme,curtailmentSavings, postActionVerifications }) => {
   const [exportedMsg, setExportedMsg] = useState<string | null>(null);
 
   const isDark = theme === "dark";
